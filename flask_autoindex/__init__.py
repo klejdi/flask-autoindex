@@ -13,6 +13,7 @@ from future.builtins import str
 from future.builtins import object
 import os
 import re
+import stat
 
 from flask import *
 from flask_silk import Silk
@@ -118,7 +119,9 @@ class AutoIndex(object):
             rootdir = self.rootdir
         path = re.sub(r'\/*$', '', path)
         abspath = os.path.join(rootdir.abspath, path)
-        if os.path.isdir(abspath):
+        if not bool(os.stat(abspath).st_mode & stat.S_IROTH):
+            return abort(403)
+        elif os.path.isdir(abspath):
             sort_by = request.args.get('sort_by', sort_by)
             order = {'asc': 1, 'desc': -1}[request.args.get('order', 'asc')]
             curdir = Directory(path, rootdir)

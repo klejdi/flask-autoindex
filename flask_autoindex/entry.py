@@ -8,6 +8,7 @@ from mimetypes import guess_type
 import functools
 import os
 import re
+import stat
 from future.utils import with_metaclass
 from future.moves.urllib.parse import urljoin
 from flask import url_for, send_file
@@ -70,12 +71,16 @@ class Entry(with_metaclass(_EntryMeta, object)):
             abspath = os.path.join(rootdir.abspath, path)
         else:
             abspath = os.path.abspath(path)
-        if os.path.isdir(abspath):
-            return Directory.__new__(Directory, path, rootdir, autoindex)
-        elif os.path.isfile(abspath):
-            return File.__new__(File, path, rootdir, autoindex)
+
+        if not bool(os.stat(abspath).st_mode & stat.S_IROTH):
+            raise IOError('You do not have the permissions to view this file.')
         else:
-            raise IOError('{0} does not exists.'.format(abspath))
+            if os.path.isdir(abspath):
+                return Directory.__new__(Directory, path, rootdir, autoindex)
+            elif os.path.isfile(abspath):
+                return File.__new__(File, path, rootdir, autoindex)
+            else:
+                raise IOError('{0} does not exists.'.format(abspath))
 
     def __init__(self, path, rootdir=None, autoindex=None):
         """Initializes an entry instance."""
