@@ -114,7 +114,8 @@ class Entry(with_metaclass(_EntryMeta, object)):
     @property
     def modified(self):
         """Returns modified time of this."""
-        return datetime.fromtimestamp(os.path.getmtime(self.abspath))
+        timestamp = os.path.getmtime(self.abspath)
+        return datetime.fromtimestamp(timestamp).replace(microsecond=0)
 
     @classmethod
     def add_icon_rule(cls, icon, rule=None):
