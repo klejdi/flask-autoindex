@@ -21,7 +21,9 @@
       </thead>
       <tbody>
         {% for ent in entries %}
-          {{ entry(ent) }}
+          {% if ent.name != ".." %}
+            {{ entry(ent) }}
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>
