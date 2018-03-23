@@ -14,6 +14,7 @@ from future.builtins import object
 import os
 import re
 import stat
+import magic
 
 from flask import *
 from flask_silk import Silk
@@ -147,10 +148,15 @@ class AutoIndex(object):
                 template = '{0}/autoindex.html'.format(__autoindex__)
                 return render_template(template, **context)
         elif os.path.isfile(abspath):
-            if mimetype:
-                return send_file(abspath, mimetype=mimetype)
+            mime = magic.Magic(mime=True)
+            mimetype = mime.from_file(abspath)
+            is_text = mimetype.startswith('text')
+            if is_text:
+                template = '{0}/file.html'.format(__autoindex__)
+                context = {'raw_content': open(abspath, 'r').read()}
+                return render_template(template, **context)
             else:
-                return send_file(abspath)
+                return send_file(abspath, mimetype=mimetype)
         else:
             return abort(404)
 
