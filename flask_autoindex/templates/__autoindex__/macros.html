@@ -7,7 +7,7 @@
       {% endif %}
     </td>
     <td class="name">
-      <a href="{{ url_for(endpoint, path=ent.path) }}">
+      <a href="{{ url_for(endpoint, path=ent.path) }}" target="_parent">
       {%- if ent.name == ".." -%}
         Parent folder
       {%- else -%}
